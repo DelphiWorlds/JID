@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{B8F039D3-C0E9-48B9-9D42-97DD9F7220F9}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="CommandLine\jid.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Utils\JIDUtils.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="TestHarness\TestHarness.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="jid">
+        <MSBuild Projects="CommandLine\jid.dproj"/>
+    </Target>
+    <Target Name="jid:Clean">
+        <MSBuild Projects="CommandLine\jid.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="jid:Make">
+        <MSBuild Projects="CommandLine\jid.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="JIDUtils">
+        <MSBuild Projects="Utils\JIDUtils.dproj"/>
+    </Target>
+    <Target Name="JIDUtils:Clean">
+        <MSBuild Projects="Utils\JIDUtils.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="JIDUtils:Make">
+        <MSBuild Projects="Utils\JIDUtils.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="TestHarness">
+        <MSBuild Projects="TestHarness\TestHarness.dproj"/>
+    </Target>
+    <Target Name="TestHarness:Clean">
+        <MSBuild Projects="TestHarness\TestHarness.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="TestHarness:Make">
+        <MSBuild Projects="TestHarness\TestHarness.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="jid;JIDUtils;TestHarness"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="jid:Clean;JIDUtils:Clean;TestHarness:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="jid:Make;JIDUtils:Make;TestHarness:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
