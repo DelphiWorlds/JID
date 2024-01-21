@@ -193,6 +193,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>..\(None)</Manifest_File>
         <Debugger_RunParams>-jar &quot;Y:\Lib\Android\jsoup-1.9.2.jar&quot; -out &quot;Z:\Temp\Soup.pas&quot;</Debugger_RunParams>
+        <PostBuildEvent><![CDATA[xcopy /y ..\Data\androidrtl*.json $(OUTPUTDIR)
+$(PostBuildEvent)]]></PostBuildEvent>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -1220,7 +1222,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy /y ..\Data\androidrtl*.json $(Platform)\$(Config)</PostBuildEvent>
+        <PostBuildEvent>xcopy /y ..\Data\androidrtl*.json $(OUTPUTDIR)&amp;&amp;xcopy /y ..\Data\androidrtl*.json $(Platform)\$(Config)</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win32'">
