@@ -9,9 +9,6 @@
         <Projects Include="Utils\JIDUtils.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="TestHarness\TestHarness.dproj">
-            <Dependencies/>
-        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -38,23 +35,14 @@
     <Target Name="JIDUtils:Make">
         <MSBuild Projects="Utils\JIDUtils.dproj" Targets="Make"/>
     </Target>
-    <Target Name="TestHarness">
-        <MSBuild Projects="TestHarness\TestHarness.dproj"/>
-    </Target>
-    <Target Name="TestHarness:Clean">
-        <MSBuild Projects="TestHarness\TestHarness.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="TestHarness:Make">
-        <MSBuild Projects="TestHarness\TestHarness.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Build">
-        <CallTarget Targets="jid;JIDUtils;TestHarness"/>
+        <CallTarget Targets="jid;JIDUtils"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="jid:Clean;JIDUtils:Clean;TestHarness:Clean"/>
+        <CallTarget Targets="jid:Clean;JIDUtils:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="jid:Make;JIDUtils:Make;TestHarness:Make"/>
+        <CallTarget Targets="jid:Make;JIDUtils:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
