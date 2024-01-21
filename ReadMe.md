@@ -68,6 +68,8 @@ JID requires the following:
 * [Delphi AST](https://github.com/RomanYankovsky/DelphiAST)
 * [NEON](https://github.com/paolo-rossi/delphi-neon)
 
+The JID project search paths make use of `User System Overrides` (These can be set up in the IDE options Tools | Options, IDE > Environment Variables), which point to the folders of the respective dependencies. Either create matching overrides in your IDE, or update the project search paths so that the compiler finds them.
+
 ## Support
 
 ### Issues page
