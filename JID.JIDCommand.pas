@@ -507,7 +507,7 @@ begin
     Writeln('NOTE:');
     Writeln('  In order to resolve identifiers/units from the Delphi RTL, a valid index file must be in the same folder as this executable');
     Writeln('    See: https://github.com/DelphiWorlds/JID/blob/master/Readme.md#index-files');
-    Writeln('  You must have theJAVA_HOME environment variable set to the root of a valid JDK');
+    Writeln('  You must have the JAVA_HOME environment variable set to the root of a valid JDK');
     Writeln('  Class names must be fully qualified in dotted notation');
     Writeln('  Filenames with spaces MUST be in quotes');
     Writeln;
