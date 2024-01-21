@@ -114,7 +114,6 @@ var
   LHeaders, LClasses, LCommandOutput: TArray<string>;
 begin
   LTemplate := cJavaPRtlCommandTemplate;
-  // LTemplate := cJavaPRtlDescCommandTemplate;
   LHeaders := Copy(AClasses);
   repeat
     LCommandLength := Length(Format(LTemplate, [JDKBinPath, '']));
@@ -149,7 +148,6 @@ var
   LHeaders, LClasses, LCommandOutput: TArray<string>;
 begin
   LTemplate := cJavaPJarCommandTemplate;
-  // LTemplate := cJavaPJarDescCommandTemplate;
   LHeaders := AClasses;
   repeat
     LCommandLength := Length(Format(LTemplate, [JDKBinPath, AJarFileName, AJarFileName, '']));
@@ -182,8 +180,6 @@ var
   LHeaders: TArray<string>;
 begin
   Result := GetHeaders(AJarFileName, LHeaders);
-//  TArray.Sort<string>(LHeaders);
-//  TFile.WriteAllLines('Y:\Lib\Android\Android.defs.txt', LHeaders);
   if Result = 0 then
     Result := GetSignatures(AJarFileName, LHeaders, AOutput);
 end;

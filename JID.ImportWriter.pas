@@ -134,8 +134,6 @@ var
   I: Integer;
 begin
   LQualifier := QualifiedReturnType.Trim(['[', ']']);
-  if LQualifier.EndsWith('Uri') then
-    Sleep(0);
   if not AIsRequiredType and IsQualified(LQualifier) then
     Qualifiers.Remove(LQualifier)
   else if IsQualified(LQualifier) and AMaps.FindSymbol(LQualifier.Replace('.', '/', [rfReplaceAll]), LSymbolUnit) then
