@@ -312,7 +312,7 @@ var
   LSortedDefs: TJavaDefinitions;
   LDelphiName, LIndexFileName: string;
   LMaps: TSymbolUnitMaps;
-  LUses, LRequiredTypes, LParts: TArray<string>;
+  LUses, LRequiredTypes: TArray<string>;
   LSortedMethods: TJavaMethods;
   LIncludeAll: Boolean;
 begin
