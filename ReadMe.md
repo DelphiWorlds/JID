@@ -50,9 +50,80 @@ Will import `java.util.Formatter` and `java.util.zip.Inflater` to `Androidapi.JN
 
 When omitting `-jar` (i.e. import from Java runtime), `-cls` or `-file` is required.
 
-## Functions yet to be documented
+## Other JID functions
 
-There are other functions of JID available via the commandline app (and via `TJIDCommand`, in the code) that are yet to be documented.
+### Indexing
+
+JID can also be used to create an "index" of all classes exported by `jar` files. The format of this command is:
+
+```
+jid -index <folder> -match <pattern> -out <outfilename>
+```
+
+Where:
+
+* `<folder>` is a folder containing `jar` files
+* `<pattern>` is a pattern for matching the `jar` filenames e.g a pattern of `exoplayer*` will result in indexing of all jar files starting with `exoplayer` in the folder
+* `<outfilename>` is the file to output to
+
+This is part of an example output:
+
+```
+com/google/android/exoplayer2/AbstractConcatenatedTimeline|exoplayer-core-2.19.1.jar
+com/google/android/exoplayer2/AudioBecomingNoisyManager$AudioBecomingNoisyReceiver|exoplayer-core-2.19.1.jar
+com/google/android/exoplayer2/AudioBecomingNoisyManager$EventListener|exoplayer-core-2.19.1.jar
+com/google/android/exoplayer2/AudioBecomingNoisyManager|exoplayer-core-2.19.1.jar
+com/google/android/exoplayer2/AudioFocusManager$AudioFocusListener|exoplayer-core-2.19.1.jar
+com/google/android/exoplayer2/AudioFocusManager$PlayerCommand|exoplayer-core-2.19.1.jar
+com/google/android/exoplayer2/AudioFocusManager$PlayerControl|exoplayer-core-2.19.1.jar
+com/google/android/exoplayer2/AudioFocusManager|exoplayer-core-2.19.1.jar
+com/google/android/exoplayer2/BasePlayer|exoplayer-common-2.19.1.jar
+com/google/android/exoplayer2/BaseRenderer|exoplayer-core-2.19.1.jar
+```
+
+Each line contains the fully qualified class, a separator `|`, and the file that contains the class.
+
+The output can be useful for finding which `jar` files to include in a Delphi project when using Java classes that might belong to identical namespaces.
+   
+### Find
+
+The format of the command is:
+
+```
+jid -find <classesfilename> <indexfilename> -out <outfilename>
+```
+
+* `<classesfilename>` is file containing a list of fully qualified class names on separate lines
+* `<indexfilename>` is an index file produced by the `index` function 
+* `<outfilename>` is the file to output to
+
+The find function will match classes in "classes" file with classes in the "index" file, and output a list of the classes and each `jar` file they are contained in, e.g. for a "classes" file containing:
+
+```
+com/google/android/exoplayer2/BuildConfig
+com/google/android/exoplayer2/DefaultMediaClock
+com/google/android/exoplayer2/DeviceInfo
+com/google/android/exoplayer2/FormatHolder
+com/google/android/exoplayer2/MediaItem
+```
+
+Would result in an output of:
+
+```
+File: exoplayer-2.19.1.jar
+com/google/android/exoplayer2/BuildConfig
+
+File: exoplayer-common-2.19.1.jar
+com/google/android/exoplayer2/DeviceInfo
+com/google/android/exoplayer2/MediaItem
+
+File:
+exoplayer-core-2.19.1.jar
+com/google/android/exoplayer2/DefaultMediaClock
+com/google/android/exoplayer2/FormatHolder
+```
+
+Making it easier to know which `jar` files to include in a project
 
 ## Compiling JID
 
