@@ -286,13 +286,18 @@ var
   LToken, LQualifier: string;
   LDef: TJavaDefinition;
   LMethod: TJavaMethod;
-  LAngleBracketIndex, LCommaIndex: Integer;
+  LAngleBracketIndex, LCommaIndex, LCount: Integer;
   LKeyModifiers: TKeyModifiers;
 begin
+  if IsConsole then
+    Writeln('Parsing classes..');
   Qualifiers.Clear;
+  LCount := Length(ASignatures);
   LReader := TTokenReader.Create(ASignatures);
   while not LReader.EOF do
   begin
+    if IsConsole then
+      Write(#13 + Format('[%3d%%]', [Round((LReader.LineIndex / LCount) * 100)]));
     LToken := LReader.Next;
     // Expect: [Access modifier] [Modifiers] ([class|interface]) (qualifier) [extends] [implements (list)] ({)
     // No access modifier = private, but private abstract classes need to be included in case public classes are descended from it
@@ -404,6 +409,8 @@ begin
     else
       LReader.Seek('}');
   end;
+  if IsConsole then
+    Writeln(#13'Completed parsing classes');
 end;
 
 end.
