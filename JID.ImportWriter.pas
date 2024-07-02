@@ -296,11 +296,14 @@ var
   LValues: TArray<string>;
   I: Integer;
 begin
-  Sort;
-  SetLength(LValues, Length(Items));
-  for I := 0 to Length(Items) - 1 do
-    LValues[I] := Items[I].Value.Replace('.', '/', [rfReplaceAll]);
-  TFile.WriteAllLines(AFileName, LValues);
+  if Length(Items) > 0 then
+  begin
+    Sort;
+    SetLength(LValues, Length(Items));
+    for I := 0 to Length(Items) - 1 do
+      LValues[I] := Items[I].Value.Replace('.', '/', [rfReplaceAll]);
+    TFile.WriteAllLines(AFileName, LValues);
+  end;
 end;
 
 { TImportWriter }
