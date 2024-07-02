@@ -331,7 +331,6 @@ begin
   if not LIndexFileName.IsEmpty and TFile.Exists(LIndexFileName) then
     LMaps.LoadFromFile(LIndexFileName);
   ADefinitions.Reconcile(LMaps, LRequiredTypes, LUses);
-  // TODO: Decide whether to create this:
   Qualifiers.SaveToFile(TPath.ChangeExtension(AFileName, '.missing.txt'));
   LWriter := TStreamWriter.Create(AFileName);
   try
