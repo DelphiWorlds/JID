@@ -280,7 +280,7 @@ end;
 
 class function TJavaMethod.CompareName(const ALeft, ARight: TJavaMethod): Integer;
 begin
-  Result := CompareStr(ALeft.DelphiName, ARight.DelphiName);
+  Result := CompareStr(ALeft.DelphiName.TrimLeft(['&']), ARight.DelphiName.TrimLeft(['&']));
 end;
 
 function TJavaMethod.CanAddDependentType(const ATypeName: string; const AExistingTypes, ATypes: TArray<string>): Boolean;
