@@ -144,12 +144,17 @@ end;
 class function TJarProcessor.GetSignatures(const AJarFileName: string; const AClasses: TArray<string>; out AOutput: TArray<string>): Cardinal;
 var
   LTemplate, LCommandLine, LClassesString: string;
-  I, LCommandLength: Integer;
+  I, LCommandLength, LCount: Integer;
   LHeaders, LClasses, LCommandOutput: TArray<string>;
 begin
+  if IsConsole then
+    Writeln(Format('Processing signatures from %s..', [TPath.GetFileName(AJarFileName)]));
   LTemplate := cJavaPJarCommandTemplate;
+  LCount := Length(AClasses);
   LHeaders := AClasses;
   repeat
+    if IsConsole then
+      Write(#13 + Format('[%3d%%]', [Round(((LCount - Length(LHeaders)) / LCount) * 100)]));
     LCommandLength := Length(Format(LTemplate, [JDKBinPath, AJarFileName, AJarFileName, '']));
     LClasses := [];
     for I := 0 to Length(LHeaders) -1 do
@@ -168,11 +173,18 @@ begin
     if Result = 0 then
       AOutput := AOutput + LCommandOutput;
   until (Length(LHeaders) = 0) or (Result <> 0);
-  for I := Length(AOutput) - 1 downto 0 do
+  if IsConsole then
+    Writeln(#13'Stripping signatures output..');
+  LCount := Length(AOutput);
+  for I := LCount - 1 downto 0 do
   begin
+    if IsConsole then
+      Write(#13 + Format('[%3d%%]', [Round(((LCount - I + 1) / LCount) * 100)]));
     if AOutput[I].StartsWith(cCompiledFromPrefix, True) or AOutput[I].StartsWith(cErrorPrefix, True) then
       Delete(AOutput, I, 1);
   end;
+  if IsConsole then
+    Writeln(#13'Completed processing signatures');
 end;
 
 class function TJarProcessor.GetSignatures(const AJarFileName: string; out AOutput: TArray<string>): Cardinal;
