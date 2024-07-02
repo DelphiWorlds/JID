@@ -461,9 +461,9 @@ begin
   end;
   if not AMethod.DelphiReturnType.IsEmpty then
     AWriter.Write(': ' + AMethod.DelphiReturnType);
-  AWriter.Write('; cdecl');
   if AMethod.IsOverload then
     AWriter.Write('; overload');
+  AWriter.Write('; cdecl');
   AWriter.WriteLine(';');
 end;
 
