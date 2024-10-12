@@ -314,7 +314,6 @@ var
 begin
   if IsConsole then
     Writeln('Parsing classes..');
-  Qualifiers.Clear;
   LCount := Length(ASignatures);
   LReader := TTokenReader.Create(ASignatures);
   while not LReader.EOF do
