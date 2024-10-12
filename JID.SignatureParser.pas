@@ -169,9 +169,9 @@ begin
     LAngleBracketIndex := LParamType.IndexOf('<');
     if LAngleBracketIndex > -1 then
       LParamType := LParamType.Substring(0, LAngleBracketIndex);
-    // Turn varargs into single
+    // Turn varargs into array
     if LParamType.EndsWith('...') then
-      LParamType := LParamType.Replace('...', '');
+      LParamType := LParamType.Replace('...', '[]');
     LParam.QualifiedParamType := LParamType;
     Qualifiers.Add(LParam.QualifiedParamType);
     LParts := LParamType.Split(['.']);
