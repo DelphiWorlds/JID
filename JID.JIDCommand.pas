@@ -372,7 +372,7 @@ begin
         LOutputDir := TPath.GetDirectoryName(LOutputFileName);
         if not LOutputDir.IsEmpty and not ForceDirectories(LOutputDir) then
         begin
-          if not IsConsole then
+          if IsConsole then
             Writeln('Unable to create output folder');
         end
         else if LSwitches.FindSwitch('index', LSwitch) then
