@@ -344,7 +344,12 @@ begin
         Result := LHeadersResult;
     end;
   end;
-  TArray.Sort<string>(LOutput);
+  TArray.Sort<string>(LOutput, TComparer<string>.Construct(
+    function(const ALeft, ARight: string): Integer
+    begin
+      Result := CompareText(ALeft, ARight);
+    end
+  ));
   TFile.WriteAllLines(AOutputFileName, LOutput);
 end;
 
