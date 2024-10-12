@@ -243,17 +243,19 @@ end;
 
 procedure TJavaDefinitionsHelper.Reconcile(const AMaps: TSymbolUnitMaps; const ARequiredTypes: TArray<string>; var AUnits: TArray<string>);
 var
-  I, LCount: Integer;
+  I, LCount, LIndex: Integer;
 begin
   if IsConsole then
-    Writeln('Reconciling...');
+    Writeln(#13'Reconciling..');
   LCount := Length(Self);
+  LIndex := 0;
   for I := Length(Self) - 1 downto 0 do
   begin
     if IsConsole then
-      Write(#13 + Format('[%3d%%]', [Round((I / LCount) * 100)]));
+      Write(#13 + Format('[%3d%%]', [Round((LIndex / LCount) * 100)]));
     if not Self[I].Reconcile(AMaps, MatchStr(Self[I].DelphiName, ARequiredTypes), AUnits) then
       Delete(Self, I, 1);
+    Inc(LIndex);
   end;
 end;
 
@@ -432,6 +434,8 @@ begin
       ADefinitions := ADefinitions + LRtlDefs;
     end;
   until Length(LRtlDefs) = 0;
+  if IsConsole then
+    Writeln(#13'Completed parsing/reconciling');
   // At this point, Qualifiers should contain:
   // Non-RTL classes - need to find them in any dependent .jar files, perhaps in the same folder as the target .jar
   Qualifiers.SaveToFile(TPath.ChangeExtension(AFileName, '.missing.txt'));

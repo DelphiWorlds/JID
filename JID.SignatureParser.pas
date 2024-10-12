@@ -313,7 +313,7 @@ var
   LKeyModifiers: TKeyModifiers;
 begin
   if IsConsole then
-    Writeln('Parsing classes..');
+    Writeln(#13'Parsing classes..');
   LCount := Length(ASignatures);
   LReader := TTokenReader.Create(ASignatures);
   while not LReader.EOF do
@@ -431,8 +431,6 @@ begin
     else
       LReader.Seek('}');
   end;
-  if IsConsole then
-    Writeln(#13'Completed parsing classes');
 end;
 
 end.
