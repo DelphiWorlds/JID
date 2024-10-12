@@ -45,7 +45,7 @@ implementation
 
 uses
   System.SysUtils, System.IOUtils, System.Generics.Collections, System.Generics.Defaults,
-  DW.OS.Win,
+  DW.OS.Win, DW.OSDevice,
   JID.JavaTypes, JID.SignatureParser;
 
 type
@@ -509,6 +509,8 @@ var
 begin
   if IsConsole then
   begin
+    Writeln(Format('JID v%s', [TOSDevice.GetPackageDisplayVersion]));
+    Writeln;
     LAppName := TPath.GetFileNameWithoutExtension(ParamStr(0));
     Writeln('Usage:');
     Writeln(Format('  %s [-jar <jarfile>] -out <outfilename> [-cls <classes> | -file <clsfilename>]', [LAppName]));
