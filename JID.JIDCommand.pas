@@ -288,7 +288,10 @@ begin
   // Used for debugging:
   // TFile.WriteAllLines(AOutputFileName.Replace('.pas', '.sigs.txt'), ASignatures);
   LDefinitions := TSignatureParser.Parse(ASignatures);
-  TImportWriter.Generate(AOutputFileName, LDefinitions, AOptions);
+  if Length(LDefinitions) > 0 then
+    TImportWriter.Generate(AOutputFileName, LDefinitions, AOptions)
+  else if IsConsole then
+    Writeln('No classes found to output');
 end;
 
 class function TJIDCommand.ImportJar(const AJarFileName, AOutputFileName: string; const AOptions: TImportOptions): Cardinal;
