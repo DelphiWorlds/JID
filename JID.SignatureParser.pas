@@ -90,6 +90,21 @@ type
     procedure ParseParams(const ASignature: string);
   end;
 
+function IndexOfLastCapital(const AValue: string): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := Length(AValue) - 2 to 0 do
+  begin
+    if AValue.Chars[I] = AValue.Chars[I].ToUpper then
+    begin
+      Result := I;
+      Break;
+    end;
+  end;
+end;
+
 { TJavaMethodHelper }
 
 procedure TJavaMethodHelper.Parse;
@@ -191,7 +206,7 @@ end;
 
 function TJavaMethodHelper.GetUniqueParamName(const AParamType: string): string;
 var
-  LCounter: Integer;
+  LCounter, LCapitalIndex: Integer;
   LBaseName: string;
 begin
   LBaseName := TConverter.TrimBefore(AParamType, ['$']);
@@ -201,13 +216,21 @@ begin
   if MatchText(LBaseName, cReservedWords) or TConverter.IsDelphiPrimitive(Result) then
     Result := LBaseName + '_' + IntToStr(LCounter)
   else
+  begin
+    // e.g. parameter of type: AudioManager_OnAudioFocusChangeListener will have a name of: listener
+    LCapitalIndex := IndexOfLastCapital(LBaseName);
+    if LCapitalIndex > -1 then
+      LBaseName := LBaseName.Substring(LCapitalIndex);
     Result := LBaseName;
+  end;
   while IndexOfParam(Result) > -1 do
   begin
     Result := LBaseName + '_' + IntToStr(LCounter);
     Inc(LCounter);
   end;
-  Result := Result.ToLower;
+  // Lower case the first character if not all uppercase
+  if Result <> Result.ToUpper then
+    Result := Result.Chars[0].ToLower + Result.Substring(1);
 end;
 
 function TJavaMethodHelper.IndexOfParam(const AParamName: string): Integer;
