@@ -90,8 +90,9 @@ type
   public
     Usage: Integer;
     Value: string;
-    procedure IncUsage;
     function DecUsage: Boolean;
+    procedure IncUsage;
+    function IsRTL: Boolean;
   end;
 
   TQualifierItems = TArray<TQualifierItem>;
@@ -104,6 +105,7 @@ type
     Items: TQualifierItems;
     procedure Add(AValue: string);
     procedure Clear;
+    function HasRTL: Boolean;
     procedure Remove(const AValue: string; const AAll: Boolean = False);
     procedure Sort;
     property Values: TArray<string> read GetValues;
@@ -415,6 +417,11 @@ begin
   Inc(Usage);
 end;
 
+function TQualifierItem.IsRTL: Boolean;
+begin
+  Result := Value.StartsWith('java.') or Value.StartsWith('javax.') or Value.StartsWith('org.w3c.');
+end;
+
 function TQualifierItem.DecUsage: Boolean;
 begin
   Dec(Usage);
@@ -467,6 +474,21 @@ begin
   SetLength(Result, Length(Items));
   for I := 0 to Length(Items) - 1 do
     Result[I] := Items[I].Value;
+end;
+
+function TQualifiers.HasRTL: Boolean;
+var
+  LItem: TQualifierItem;
+begin
+  Result := False;
+  for LItem in Items do
+  begin
+    if LItem.IsRTL then
+    begin
+      Result := True;
+      Break;
+    end;
+  end;
 end;
 
 function TQualifiers.IndexOf(const AValue: string): Integer;
