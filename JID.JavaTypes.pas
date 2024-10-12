@@ -64,6 +64,9 @@ type
     Qualifier: string;
     Methods: TJavaMethods;
     procedure AddMethod(const AMethod: TJavaMethod);
+    function FixUpDelphiName: Boolean;
+    procedure FixUpReturnTypes; overload;
+    procedure FixUpReturnTypes(const ADefinition: TJavaDefinition); overload;
     function GetDependentTypes(const AExistingTypes: TArray<string>): TArray<string>;
     function GetParentDelphiName(const AForClass: Boolean): string;
     procedure Resolve;
@@ -376,6 +379,53 @@ end;
 class function TJavaDefinition.CompareDelphiName(const ALeft, ARight: TJavaDefinition): Integer;
 begin
   Result := CompareStr(ALeft.DelphiName, ARight.DelphiName);
+end;
+
+function TJavaDefinition.FixUpDelphiName: Boolean;
+var
+  LParts: TArray<string>;
+  I: Integer;
+  LName: string;
+begin
+  Result := False;
+  LParts := Qualifier.Split(['.']);
+  for I := Length(LParts) - 1 downto 0 do
+  begin
+    if not LName.IsEmpty then
+      LName := '_' + LName;
+    if LName.IsEmpty then
+      LName := LParts[I]
+    else
+      LName := LParts[I].ToLower + LName;
+    if (Length(LName) + 1) > Length(DelphiName) then
+    begin
+      Result := True;
+      DelphiName := 'J' + LName;
+      Break;
+    end;
+  end;
+end;
+
+procedure TJavaDefinition.FixUpReturnTypes(const ADefinition: TJavaDefinition);
+var
+  I: Integer;
+begin
+  for I := 0 to Length(Methods) - 1 do
+  begin
+    if Methods[I].QualifiedReturnType = ADefinition.Qualifier then
+      Methods[I].DelphiReturnType := ADefinition.DelphiName;
+  end;
+end;
+
+procedure TJavaDefinition.FixUpReturnTypes;
+var
+  I: Integer;
+begin
+  for I := 0 to Length(Methods) - 1 do
+  begin
+    if Methods[I].QualifiedReturnType = Qualifier then
+      Methods[I].DelphiReturnType := DelphiName;
+  end;
 end;
 
 function TJavaDefinition.MethodExists(const AIndex: Integer): Boolean;
