@@ -24,6 +24,8 @@ type
 
   TSwitches = TArray<TSwitch>;
 
+  TJarsProgressProc = reference to procedure(const Number, Count: Integer; const JarFileName: string);
+
   TJIDCommand = record
   private
     class function GetIndexFileName: string; static;
@@ -33,7 +35,7 @@ type
     class function RunImport(const AOutputFileName: string; const ASwitches: TSwitches): Integer; static;
     class procedure ShowUsage; static;
   public
-    class function IndexJars(const AIndexFolder, AMatch, AOutputFileName: string): Cardinal; static;
+    class function IndexJars(const AIndexFolder, AMatch, AOutputFileName: string; const AProgressProc: TJarsProgressProc = nil): Cardinal; static;
     class function ImportJar(const AJarFileName, AOutputFileName: string; const AOptions: TImportOptions): Cardinal; static;
     class function ImportRtl(const AClasses: TArray<string>; const AOutputFileName: string; const AOptions: TImportOptions): Cardinal; static;
     class function Run: Integer; static;
@@ -312,17 +314,20 @@ begin
     ImportFromSignatures(LSignatures, AOutputFileName, AOptions);
 end;
 
-class function TJIDCommand.IndexJars(const AIndexFolder, AMatch, AOutputFileName: string): Cardinal;
+class function TJIDCommand.IndexJars(const AIndexFolder, AMatch, AOutputFileName: string; const AProgressProc: TJarsProgressProc = nil): Cardinal;
 var
   LFileNames, LHeaders, LOutput: TArray<string>;
   LFileName: string;
   LHeadersResult: Cardinal;
-  I: Integer;
+  I, LIndex: Integer;
 begin
   Result := 0;
   LFileNames := TDirectory.GetFiles(AIndexFolder, AMatch, TSearchOption.soTopDirectoryOnly);
-  for LFileName in LFileNames do
+  for LIndex := 0 to Length(LFileNames) - 1 do
   begin
+    LFileName := LFileNames[LIndex];
+    if Assigned(AProgressProc) then
+      AProgressProc(LIndex + 1, Length(LFileNames), LFileName);
     if LFileName.EndsWith('.jar') then
     begin
       LHeadersResult := TJarProcessor.GetHeaders(LFileName, LHeaders);
