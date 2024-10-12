@@ -298,6 +298,7 @@ class function TJIDCommand.ImportJar(const AJarFileName, AOutputFileName: string
 var
   LSignatures: TArray<string>;
 begin
+  Qualifiers.Clear;
   if AOptions.OnlyIncluded then
     Result := TJarProcessor.GetSignatures(AJarFileName, AOptions.IncludedClasses, LSignatures)
   else
@@ -312,6 +313,7 @@ class function TJIDCommand.ImportRtl(const AClasses: TArray<string>; const AOutp
 var
   LSignatures: TArray<string>;
 begin
+  Qualifiers.Clear;
   Result := TJarProcessor.GetRtlSignatures(AClasses, LSignatures);
   if Result = 0 then
     ImportFromSignatures(LSignatures, AOutputFileName, AOptions);
