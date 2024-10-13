@@ -6,9 +6,13 @@
 
 JID was created primarily as an alternative to Java2OP that ships with Delphi, in order to address some shortcomings in Java2OP.
 
-As at Jan 21st 2024, JID will import specified classes, or all classes from the specified jar file. Presently, it will import from only **one jar file at a time**.
+JID will import specified classes, or all classes from the specified jar file. Presently, it will import from only **one jar file at a time**.
 
 JID was written in a relatively short space of time, *may not create 100% perfect imports*, and is very likely to change, so **please bear this in mind**.
+
+A Windows 32-bit binary of JID is available in the [latest release](https://github.com/DelphiWorlds/JID/releases/tag/v1.0.0), however you can also [compile JID yourself](#compiling-jid).
+
+**NOTE**: Please see the [command line app usage](#jid-command-line-app-usage) section about **requirements for running JID**.
 
 ## Index Files
 
@@ -153,6 +157,6 @@ The Delphi Worlds Slack workspace can be used to discuss aspects of JID. If you 
 
 ## Version History
 
-v1.0.0 (Jan 21st, 2024)
+v1.0.0 (Oct 13th, 2024)
 
 * Initial release
