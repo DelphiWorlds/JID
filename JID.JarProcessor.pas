@@ -32,7 +32,8 @@ implementation
 uses
   System.Generics.Collections,
   System.SysUtils, System.IOUtils,
-  DW.OS.Win, DW.RunProcess.Win;
+  DW.OS.Win, DW.RunProcess.Win,
+  JID.Core;
 
 const
   cJarTFCommandTemplate = '"%s\jar" tf "%s"';
@@ -58,6 +59,7 @@ class function TCommand.Run(const ACommandLine: string; out AOutput: TArray<stri
 var
   LProcess: TRunProcess;
 begin
+  Messages.Debug('Executing: ' + ACommandLine);
   LProcess := TRunProcess.Create;
   try
     LProcess.CommandLine := ACommandLine;
@@ -147,14 +149,12 @@ var
   I, LCommandLength, LCount: Integer;
   LHeaders, LClasses, LCommandOutput: TArray<string>;
 begin
-  if IsConsole then
-    Writeln(Format('Processing signatures from %s..', [TPath.GetFileName(AJarFileName)]));
+  Messages.Writeln(Format('Processing signatures from %s..', [TPath.GetFileName(AJarFileName)]));
   LTemplate := cJavaPJarCommandTemplate;
   LCount := Length(AClasses);
   LHeaders := AClasses;
   repeat
-    if IsConsole then
-      Write(#13 + Format('[%3d%%]', [Round(((LCount - Length(LHeaders)) / LCount) * 100)]));
+    Messages.Write(#13 + Format('[%3d%%]', [Round(((LCount - Length(LHeaders)) / LCount) * 100)]));
     LCommandLength := Length(Format(LTemplate, [JDKBinPath, AJarFileName, AJarFileName, '']));
     LClasses := [];
     for I := 0 to Length(LHeaders) -1 do
@@ -173,18 +173,15 @@ begin
     if Result = 0 then
       AOutput := AOutput + LCommandOutput;
   until (Length(LHeaders) = 0) or (Result <> 0);
-  if IsConsole then
-    Writeln(#13'Stripping signatures output..');
+  Messages.Writeln(#13'Stripping signatures output..');
   LCount := Length(AOutput);
   for I := LCount - 1 downto 0 do
   begin
-    if IsConsole then
-      Write(#13 + Format('[%3d%%]', [Round(((LCount - I + 1) / LCount) * 100)]));
+    Messages.Write(#13 + Format('[%3d%%]', [Round(((LCount - I + 1) / LCount) * 100)]));
     if AOutput[I].StartsWith(cCompiledFromPrefix, True) or AOutput[I].StartsWith(cErrorPrefix, True) then
       Delete(AOutput, I, 1);
   end;
-  if IsConsole then
-    Writeln(#13'Completed processing signatures');
+  Messages.Writeln(#13'Completed processing signatures');
 end;
 
 class function TJarProcessor.GetSignatures(const AJarFileName: string; out AOutput: TArray<string>): Cardinal;

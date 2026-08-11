@@ -40,7 +40,8 @@ implementation
 uses
   System.IOUtils,
   System.SysUtils, System.StrUtils, System.Character,
-  DW.TokenReader;
+  DW.TokenReader,
+  JID.Core;
 
 const
   cAccessModifierPublic = 'public';
@@ -312,14 +313,12 @@ var
   LAngleBracketIndex, LCommaIndex, LCount: Integer;
   LKeyModifiers: TKeyModifiers;
 begin
-  if IsConsole then
-    Writeln(#13'Parsing classes..');
+  Messages.Writeln(#13'Parsing classes..');
   LCount := Length(ASignatures);
   LReader := TTokenReader.Create(ASignatures);
   while not LReader.EOF do
   begin
-    if IsConsole then
-      Write(#13 + Format('[%3d%%]', [Round((LReader.LineIndex / LCount) * 100)]));
+    Messages.Write(#13 + Format('[%3d%%]', [Round((LReader.LineIndex / LCount) * 100)]));
     LToken := LReader.Next;
     // Expect: [Access modifier] [Modifiers] ([class|interface]) (qualifier) [extends] [implements (list)] ({)
     // No access modifier = private, but private abstract classes need to be included in case public classes are descended from it
@@ -416,7 +415,7 @@ begin
               LReader.Next;
             end;
             LMethod.Parse;
-            if not LDef.IsIgnored and not LMethod.Signature.IsEmpty then
+            if not LMethod.Signature.IsEmpty then
               LDef.AddMethod(LMethod);
             LToken := LReader.Next;
           until LReader.EOF or LToken.Equals('}');
