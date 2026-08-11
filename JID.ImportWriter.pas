@@ -42,8 +42,9 @@ implementation
 
 uses
   System.SysUtils, System.IOUtils, System.Generics.Collections, System.Generics.Defaults, System.StrUtils,
+  DW.OSLog,
   DW.UnitScan.Persistence.NEON,
-  JID.JarProcessor, JID.SignatureParser;
+  JID.JarProcessor, JID.SignatureParser, JID.Core;
 
 type
   TJavaMethodParamHelper = record helper for TJavaMethodParam
@@ -72,8 +73,8 @@ type
     function IndexOfName(const AName: string): Integer;
     function IndexOfParent(const AItem: TJavaDefinition): Integer;
     function IndexOfQualifier(const AQualifier: string): Integer;
-    procedure Reconcile(const AMaps: TSymbolUnitMaps; const ARequiredTypes: TArray<string>; var AUnits: TArray<string>);
-    procedure ResolveNames;
+    procedure Reconcile(const AMaps: TSymbolUnitMaps; const ARequiredTypes, AIncludedClasses: TArray<string>; var AUnits: TArray<string>);
+    procedure ResolveNames(var ARequiredTypes: TArray<string>);
     procedure SortByDependency;
     procedure SortByDelphiName;
   end;
@@ -241,27 +242,26 @@ begin
   end;
 end;
 
-procedure TJavaDefinitionsHelper.Reconcile(const AMaps: TSymbolUnitMaps; const ARequiredTypes: TArray<string>; var AUnits: TArray<string>);
+procedure TJavaDefinitionsHelper.Reconcile(const AMaps: TSymbolUnitMaps; const ARequiredTypes, AIncludedClasses: TArray<string>; var AUnits: TArray<string>);
 var
   I, LCount, LIndex: Integer;
 begin
-  if IsConsole then
-    Writeln(#13'Reconciling..');
+  Messages.Writeln(#13'Reconciling..');
   LCount := Length(Self);
   LIndex := 0;
   for I := Length(Self) - 1 downto 0 do
   begin
-    if IsConsole then
-      Write(#13 + Format('[%3d%%]', [Round((LIndex / LCount) * 100)]));
-    if not Self[I].Reconcile(AMaps, MatchStr(Self[I].DelphiName, ARequiredTypes), AUnits) then
+    Messages.Write(#13 + Format('[%3d%%]', [Round((LIndex / LCount) * 100)]));
+    // Remove the definition only if it was not specified in the included classes
+    if not Self[I].Reconcile(AMaps, MatchStr(Self[I].DelphiName, ARequiredTypes), AUnits) and not MatchStr(Self[I].Qualifier, AIncludedClasses) then
       Delete(Self, I, 1);
     Inc(LIndex);
   end;
 end;
 
-procedure TJavaDefinitionsHelper.ResolveNames;
+procedure TJavaDefinitionsHelper.ResolveNames(var ARequiredTypes: TArray<string>);
 var
-  I, J, LDupIndex: Integer;
+  I, J, LDupIndex, LReqTypeIndex: Integer;
 begin
   for I := Count - 1 downto 0 do
   begin
@@ -269,8 +269,11 @@ begin
       LDupIndex := IndexOfDuplicate(Self[I].DelphiName, I);
       if LDupIndex > -1 then
       begin
+        LReqTypeIndex := IndexText(Self[I].DelphiName, ARequiredTypes);
         if Self[I].FixUpDelphiName then
         begin
+          if LReqTypeIndex > -1 then
+            ARequiredTypes[LReqTypeIndex] := Self[I].DelphiName;
           Self[I].FixUpReturnTypes;
           for J := 0 to Count - 1 do
           begin
@@ -413,33 +416,43 @@ var
   LSortedMethods: TJavaMethods;
   LIncludeAll: Boolean;
 begin
-  LIncludeAll := (Length(AOptions.IncludedClasses) = 0) or AOptions.OnlyIncluded;
+(*
+  LIncludeAll := (Length(AOptions.IncludedClasses) = 0) or AOptions.OnlyIncluded; // <----- This does not look right. OnlyIncluded should mean only those that are included??
+  // TODO: This may need work, because even if IncludedClasses contains something, dependent types should also be imported
   if not LIncludeAll then
     LRequiredTypes := ADefinitions.GetRequiredTypes(AOptions.IncludedClasses)
   else if Length(AOptions.IncludedClasses) > 0 then
     LRequiredTypes := TConverter.ConvertQualifiers(AOptions.IncludedClasses)
   else
     LRequiredTypes := ADefinitions.GetDelphiTypes;
+*)
+
+  LIncludeAll := Length(AOptions.IncludedClasses) = 0;
+  if LIncludeAll then
+    LRequiredTypes := ADefinitions.GetDelphiTypes
+  else
+    LRequiredTypes := ADefinitions.GetRequiredTypes(AOptions.IncludedClasses);
   LUses := ['Androidapi.JNIBridge', 'Androidapi.JNI.JavaTypes'];
   LIndexFileName := AOptions.SymbolIndexFileName;
   if not LIndexFileName.IsEmpty and TFile.Exists(LIndexFileName) then
     LMaps.LoadFromFile(LIndexFileName);
-  ADefinitions.Reconcile(LMaps, LRequiredTypes, LUses);
+  ADefinitions.Reconcile(LMaps, LRequiredTypes, AOptions.IncludedClasses, LUses);
   // Import remaining RTL defs that are not in existing defs or in the symbol maps
   repeat
     LRtlDefs := GetRtlDefinitions(LMaps, ADefinitions);
     if Length(LRtlDefs) > 0 then
     begin
-      LRtlDefs.Reconcile(LMaps, LRtlDefs.GetRequiredTypes, LUses);
+      LRtlDefs.Reconcile(LMaps, LRtlDefs.GetRequiredTypes, AOptions.IncludedClasses, LUses);
+      if not LIncludeAll then
+        LRequiredTypes := LRequiredTypes + LRtlDefs.GetDelphiTypes;
       ADefinitions := ADefinitions + LRtlDefs;
     end;
   until Length(LRtlDefs) = 0;
-  if IsConsole then
-    Writeln(#13'Completed parsing/reconciling');
+  Messages.Writeln(#13'Completed parsing/reconciling');
   // At this point, Qualifiers should contain:
   // Non-RTL classes - need to find them in any dependent .jar files, perhaps in the same folder as the target .jar
   Qualifiers.SaveToFile(TPath.ChangeExtension(AFileName, '.missing.txt'));
-  ADefinitions.ResolveNames;
+  ADefinitions.ResolveNames(LRequiredTypes);
   LWriter := TStreamWriter.Create(AFileName);
   try
     LWriter.WriteLine('unit %s;', [TPath.GetFileNameWithoutExtension(TPath.GetFileName(AFileName))]);
@@ -455,18 +468,13 @@ begin
     for LDef in LSortedDefs do
     begin
       if LIncludeAll or MatchStr(LDef.DelphiName, LRequiredTypes) then
-      begin
-        if not LDef.IsIgnored then
-          LWriter.WriteLine('  %s = interface;', [LDef.DelphiName])
-        else
-          LWriter.WriteLine('  // Ignored: %s', [LDef.Qualifier]);
-      end;
+        LWriter.WriteLine('  %s = interface;', [LDef.DelphiName])
     end;
     LSortedDefs := Copy(ADefinitions);
     LSortedDefs.SortByDependency;
     for LDef in LSortedDefs do
     begin
-      if not LDef.IsIgnored and (LIncludeAll or MatchStr(LDef.DelphiName, LRequiredTypes)) then
+      if LIncludeAll or MatchStr(LDef.DelphiName, LRequiredTypes) then
       begin
         LSortedMethods := Copy(LDef.Methods);
         LSortedMethods.SortByName;
@@ -496,8 +504,7 @@ begin
   finally
     LWriter.Free;
   end;
-  if IsConsole then
-    Writeln(#13'Completed import');
+  Messages.Writeln(#13'Completed import');
 end;
 
 class procedure TImportWriter.WriteMethodPrefix(const AWriter: TTextWriter; const AIsStatic: Boolean);
